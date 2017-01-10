@@ -14,6 +14,13 @@ class Debug:
         Initializes Debug class with an optional level.
         """
         self.LOCAL_DEBUG_LEVEL = debug_level
+        
+    #def __exit__(self):
+    #    function = "SYSERR"
+    #
+    #    if function in self.messages:
+    #        for message in self.messages[function]:
+    #            print "::({level}) {func} -> {var}: {data}".format(level=message[2], func=function, var=message[0], data=message[1])
     
     def add_msg(self, function, variable, message, level):
         """
@@ -46,3 +53,9 @@ class Debug:
             self.messages.pop(function)
         else:
             print "::Function '{func}' does not exist!".format(func=function)
+        
+    def report_error(self, message):
+        """
+        Prints a simplified error message.
+        """
+        print "\n\n::ERROR: {data}\n\n".format(data=message)
