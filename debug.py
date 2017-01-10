@@ -3,6 +3,7 @@ GLOBAL_DEBUG_LEVEL = 2
 CRITICAL = 1
 ERROR = 2
 WARNING = 3
+INFORMATION = 4
 
 class Debug:
     messages = {}
@@ -14,7 +15,7 @@ class Debug:
         """
         self.LOCAL_DEBUG_LEVEL = debug_level
     
-    def add_msg(self, function, message, level):
+    def add_msg(self, function, variable, message, level):
         """
         Add message to Debug queue.
         
@@ -26,7 +27,7 @@ class Debug:
         if function not in self.messages: 
             self.messages[function] = []
 
-        self.messages[function].append([message, level])
+        self.messages[function].append([variable, message, level])
     
     def print_msg(self, function, level=None):
         """
@@ -40,16 +41,8 @@ class Debug:
         
         if function in self.messages:
             for message in self.messages[function]:
-                if message[1] <= level:
-                    print "::({level}) {func} -> {data}".format(level=message[1], func=function, data=message[0])
+                if message[2] <= level:
+                    print "::({level}) {func} -> {var}: {data}".format(level=message[2], func=function, var=message[0], data=message[1])
             self.messages.pop(function)
         else:
             print "::Function '{func}' does not exist!".format(func=function)
-
-dbg = Debug()
-dbg.add_msg("func", "This is a test1", 2)
-dbg.add_msg("func", "This is not a test1", 1)
-dbg.add_msg("func", "This is not a test2", 3)
-
-dbg.print_msg("func")
-dbg.print_msg("func")
