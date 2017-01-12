@@ -1,4 +1,4 @@
-import json, urllib, sys
+import json, urllib2, sys
 import debug as Debugger
 
 class Riot:
@@ -40,14 +40,14 @@ class Riot:
         See Also:
             https://developer.riotgames.com/api/methods#!/1208/4684
         """
-        url_name = urllib.quote(name, safe='')
+        url_name = urllib2.quote(name, safe='')
         a_url = "v1.4/summoner/by-name/"
         s_url = "{self_url}{api_url}{name}?api_key={api_key}".format(self_url=self.url, 
                                                                     api_url=a_url, 
                                                                     name=url_name, 
                                                                     api_key=self.api_key)
         
-        response = urllib.urlopen(s_url)
+        response = urllib2.urlopen(s_url)
         data = json.loads(response.read())
         
         # Debug data
@@ -82,7 +82,7 @@ class Riot:
                                                                    id=id,
                                                                    api_key=self.api_key)
         
-        response = urllib.urlopen(s_url)
+        response = urllib2.urlopen(s_url)
         data = json.loads(response.read())
         
         # Debug data
