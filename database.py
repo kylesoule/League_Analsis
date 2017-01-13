@@ -1,4 +1,4 @@
-import pyodbc
+import pyodbc, sys
 
 """
 TODO:
@@ -12,6 +12,27 @@ class MSSQL:
     def __init__(self):
         cnxn = pyodbc.connect("DSN=mssql_namestaken")
         self.cursor = cnxn.cursor()
+    
+    def insert(self, sql, data):
+        """
+        Insert data.
+        
+        Args:
+            sql: Preformated SQL statement
+            data: Data list
+            
+        Returns:
+            True if success otherwise False
+        """
+        cursor = self.cursor
+        
+        try:
+            cursor.execute(sql, data)
+            cursor.commit()
+            return True
+        except:
+            print sys.exc_info()[1]
+            return False
 
     def bulk_insert(self, sql, data):
         """
@@ -28,12 +49,13 @@ class MSSQL:
             bulk_insert("INSERT INTO db.table (col1, col2) VALUES (?, ?)", data)
         """
         cursor = self.cursor
-        
+
         try:
             cursor.executemany(sql, data)
             cursor.commit()
             return True
         except:
+            print sys.exc_info()[1]
             return False
 
     def select(self, what, db, table, where):

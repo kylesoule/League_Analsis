@@ -1,3 +1,4 @@
+from datetime import datetime
 import json, urllib2, sys
 import debug as Debugger
 import database as SQL
@@ -8,6 +9,7 @@ WAIT_TIME = ((600.0 / RATE_LIMIT) + 0.5)
 """
 TODO:
     IMPLEMENT A RATE LIMITER ON ALL CALLS!
+    CHECK FOR EXISTING MATCH INFORMATION BEFORE INSERT
 """
 
 class Riot:
@@ -190,9 +192,86 @@ def load_champion_list():
             champions[int(champion[0])] = champion[1]
     
     return champions
+
+def get_summoner_match_data(summoner):
+    riot_api = Riot()
+    mssql = SQL.MSSQL()
+    match_summary = []
+    
+    if type(summoner) is str:
+        id = riot_api.get_summoner_by_name(summoner)
+    else:
+        id = summoner
+    
+    games = riot_api.get_recent_game_data_by_summoner_id(id)
+    
+    seedId = games["summonerId"]
+    for game in games["games"]:
+        players = []
+        gameId = game["gameId"]
+        gameMode = game["gameMode"]
+        gameType = game["gameType"]
+        gameSubType = game["subType"]
+        mapId = game["mapId"]
+        date = datetime.fromtimestamp(int(game["createDate"]) / 1000)
+        
+        if game["stats"]["team"] == 100:
+            if game["stats"]["win"] == True:
+                winner = 100
+            else:
+                winner = 200
+        else:
+            if game["stats"]["win"] == True:
+                winner = 200
+            else:
+                winner = 100
+        
+        players.append([seedId, game["championId"], game["teamId"]])
+        for player in game["fellowPlayers"]:
+            players.append([player["summonerId"], player["championId"], player["teamId"]])
+        
+        for player in players:
+            if player[2] == winner:
+                won = 1
+            else:
+                won = 0
+
+            match_summary.append([gameId,
+                                  player[0],    # Summoner ID
+                                  player[1],    # Champion ID
+                                  player[2],    # Team ID
+                                  won,
+                                  gameMode,
+                                  gameType,
+                                  gameSubType,
+                                  mapId,
+                                  str(date)])
+
+    mssql.bulk_insert("INSERT INTO {db}.dbo.RecentMatchAnalysis (gameId, summonerId, championId, team, win, "
+                                                                "gameMode, gameType, gameSubType, mapId, date) VALUES "
+                                                                "(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
+                                                                "".format(db=mssql.db), match_summary)
+
+    mssql.insert("INSERT INTO {db}.dbo.RecentMatchJSON (summonerId, date, json) VALUES (?, ?, ?)"
+                 "".format(db=mssql.db), [id, datetime.now(), json.dumps(games["games"])])
         
 dbg = Debugger.Debug(Debugger.WARNING)
-riot_api = Riot()
+get_summoner_match_data("i n       u s e")
+#get_summoner_match_data(45911151)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 """
 file = "C:\\Users\\namestaken\\Documents\\League Analysis\\League_Analsis\\Data\\Champions.csv"
@@ -218,37 +297,3 @@ print SQL.bulk_insert("INSERT INTO LeagueAnalysis.dbo.ChampionNames (id, name) V
 """
 champions = load_champion_list()
 """
-
-mssql = SQL.MSSQL()
-db = "LeagueAnalysis"
-summoner = "SmashBrethren"
-
-id = riot_api.get_summoner_by_name(summoner)
-games = riot_api.get_recent_game_data_by_summoner_id(id)
-
-print("Recent games played by {who} (ID: {id})".format(who=summoner, id=id))
-
-seedId = games["summonerId"]
-for game in games["games"]:
-    players = []
-    gameId = game["gameId"]
-    
-    if game["stats"]["team"] == 100:
-        if game["stats"]["win"] == True:
-            winner = 100
-        else:
-            winner = 200
-    else:
-        if game["stats"]["win"] == True:
-            winner = 200
-        else:
-            winner = 100
-    
-    print("Winner of {gameId} is {winner}:".format(gameId=gameId, winner=winner))
-    
-    players.append([game["teamId"], game["championId"], seedId])
-    for player in game["fellowPlayers"]:
-        players.append([player["teamId"], player["championId"], player["summonerId"]])
-    
-    for player in players:
-        print("\t{t}\t{c}\t{s}".format(t=player[0], c=mssql.get_champion_name(player[1]), s=player[2]))
