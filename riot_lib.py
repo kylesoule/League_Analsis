@@ -1,5 +1,5 @@
 from datetime import datetime
-import json, urllib2, sys
+import json, urllib2, sys, time
 import debug as Debugger
 import database as SQL
 
@@ -15,6 +15,23 @@ TODO:
 class Riot:
     api_key = "fb86f255-edcf-4b8f-ba07-8b0f675c8b51"
     url = "https://na.api.pvp.net/api/lol/na/"
+    last_api_hit = 0
+    
+    def get_json(self, url):
+        """
+        Returns JSON while limiting the API hit rate
+        
+        Args:
+            url: URL to retrieve JSON
+        
+        Returns:
+            JSON
+        """
+        if time.time() - self.last_api_hit < WAIT_TIME:
+            time.sleep(WAIT_TIME)
+        
+        self.last_api_hit = time.time()
+        return urllib2.urlopen(url)
     
     def simple_name(self, name):
         """
@@ -58,7 +75,7 @@ class Riot:
                                                                     name=url_name, 
                                                                     api_key=self.api_key)
         
-        response = urllib2.urlopen(s_url)
+        response = self.get_json(s_url)
         data = json.loads(response.read())
         
         # Debug data
@@ -92,7 +109,7 @@ class Riot:
                                                                    id=id,
                                                                    api_key=self.api_key)
         
-        response = urllib2.urlopen(s_url)
+        response = self.get_json(s_url)
         data = json.loads(response.read())
         
         # Debug data
@@ -133,7 +150,7 @@ class Riot:
         dbg.print_msg("get_champion_name_by_id(self, championId)")
         
         try:
-            response = urllib2.urlopen(s_url)
+            response = self.get_json(s_url)
             data = json.loads(response.read())
             return data["name"]
         except:
@@ -158,7 +175,7 @@ class Riot:
                                                                  api_url=a_url,
                                                                  api_key=self.api_key)
         
-        response = urllib2.urlopen(s_url)
+        response = self.get_json(s_url)
         data = json.loads(response.read())
         
         # Debug data
