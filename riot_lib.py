@@ -271,46 +271,19 @@ def get_summoner_match_data(summoner):
 
     mssql.insert("INSERT INTO {db}.dbo.RecentMatchJSON (summonerId, date, json) VALUES (?, ?, ?)"
                  "".format(db=mssql.db), [id, datetime.now(), json.dumps(games["games"])])
+
+def db_insert_champion_names():
+    """
+    Reads listing of champinos and IDs and inserts them into a database.
+    """
+    riot_api = Riot()
+    champions = riot_api.get_full_champion_list()
+    new_champ = []
+    for champion in champions:
+        new_champ.append([champion[0], champion[1]])
         
+    mssql = SQL.MSSQL()
+    mssql.bulk_insert("INSERT INTO LeagueAnalysis.dbo.ChampionNames (id, name) VALUES (?, ?)", new_champ)
+
 dbg = Debugger.Debug(Debugger.WARNING)
 get_summoner_match_data("i n       u s e")
-#get_summoner_match_data(45911151)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-"""
-file = "C:\\Users\\namestaken\\Documents\\League Analysis\\League_Analsis\\Data\\Champions.csv"
-champions = riot_api.get_full_champion_list()
-target = open(file, 'w')
-for champion in champions:
-    line = "{id}\t{name}\n".format(id=champion[0], name=champion[1])
-    target.write(line)
-target.close()
-"""
-
-
-"""
-champions = riot_api.get_full_champion_list()
-new_champ = []
-for champion in champions:
-    new_champ.append([champion[0], champion[1]])
-
-print SQL.bulk_insert("INSERT INTO LeagueAnalysis.dbo.ChampionNames (id, name) VALUES (?, ?)", new_champ)
-"""
-
-
-"""
-champions = load_champion_list()
-"""

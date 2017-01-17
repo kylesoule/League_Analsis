@@ -10,7 +10,20 @@ class MSSQL:
     db = "LeagueAnalysis"
     
     def __init__(self):
-        cnxn = pyodbc.connect("DSN=mssql_namestaken")
+        #cnxn = pyodbc.connect("DSN=mssql_namestaken")
+        driver = "{SQL Server}"
+        server = "leagueanalysis.cj13h9wmho9i.us-east-2.rds.amazonaws.com"
+        port = "1433"
+        username = 'namestaken'
+        password = 'H1LpQ3Rzf'
+        
+        conn = "DRIVER={driver};SERVER={server};PORT={port};UID={uid};PWD={pwd}".format(driver=driver,
+                                                                                        server=server,
+                                                                                        port=port,
+                                                                                        uid=username,
+                                                                                        pwd=password)
+        
+        cnxn = pyodbc.connect(conn)
         self.cursor = cnxn.cursor()
     
     def insert(self, sql, data):
