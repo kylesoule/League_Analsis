@@ -271,6 +271,7 @@ def get_summoner_match_data(summoner):
 
     mssql.insert("INSERT INTO {db}.dbo.RecentMatchJSON (summonerId, date, json) VALUES (?, ?, ?)"
                  "".format(db=mssql.db), [id, datetime.now(), json.dumps(games["games"])])
+<<<<<<< HEAD:Sandbox/riot_lib.py
         
 dbg = Debugger.Debug(Debugger.WARNING)
 get_summoner_match_data("i n       u s e")
@@ -317,8 +318,21 @@ for champion in champions:
 
 print SQL.bulk_insert("INSERT INTO LeagueAnalysis.dbo.ChampionNames (id, name) VALUES (?, ?)", new_champ)
 """
+=======
+>>>>>>> origin/master:riot_lib.py
 
+def db_insert_champion_names():
+    """
+    Reads listing of champinos and IDs and inserts them into a database.
+    """
+    riot_api = Riot()
+    champions = riot_api.get_full_champion_list()
+    new_champ = []
+    for champion in champions:
+        new_champ.append([champion[0], champion[1]])
+        
+    mssql = SQL.MSSQL()
+    mssql.bulk_insert("INSERT INTO LeagueAnalysis.dbo.ChampionNames (id, name) VALUES (?, ?)", new_champ)
 
-"""
-champions = load_champion_list()
-"""
+dbg = Debugger.Debug(Debugger.WARNING)
+get_summoner_match_data("i n       u s e")

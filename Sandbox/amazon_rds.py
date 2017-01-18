@@ -3,7 +3,7 @@ import pyodbc
 #driver= '{ODBC Driver 13 for SQL Server}'
 driver = "{SQL Server}"
 server = "leagueanalysis.cj13h9wmho9i.us-east-2.rds.amazonaws.com"
-port = "1443"
+port = "1433"
 username = 'namestaken'
 password = 'H1LpQ3Rzf'
 
