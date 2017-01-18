@@ -1,7 +1,7 @@
 from datetime import datetime
 import json, urllib2, sys, time
-import debug as Debugger
-import database as SQL
+from Lib import Debug as Debugger
+from Database import MSSQL as SQL
 
 RATE_LIMIT = 500    # per 10 minutes
 WAIT_TIME = ((600.0 / RATE_LIMIT) + 0.5)
@@ -279,7 +279,15 @@ get_summoner_match_data("i n       u s e")
 
 
 
+'''
+CREATE A TABLE FOR SUMMONERS
+    SUMMONERID
+    LAST_UPDATE
+    LAST_SEEN
+    DIVISION
 
+SUBMIT SUMMONERS FROM ALL MATCHES INTO THE SUMMONER TABLE
+'''
 
 
 
